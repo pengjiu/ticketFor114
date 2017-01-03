@@ -7,8 +7,9 @@ import urllib
 class Robot_114:
     login_url="http://www.bjguahao.gov.cn/quicklogin.htm";
     confirm_url="http://www.bjguahao.gov.cn/order/confirm.htm";
+    appoint_url="http://www.bjguahao.gov.cn/dpt/appoint/%s-%s.htm"
     def __init__(self,task):
-        cookiejar = cookielib.LWPCookieJar()
+        cookiejar = cookielib.LWPCookieJar();
         self.session=requests.Session();
         self.session.cookies=cookiejar;
         self.session.headers = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36'};
@@ -23,6 +24,13 @@ class Robot_114:
         r=self.session.post(Robot_114.login_url,data=login_data);
         if r.json()['msg']!="ok":
             raise Exception("登录失败！");
+        '''
+            预约日期页面的总概况
+        '''
+    def appoint(self):
+        appoint_url=Robot_114.appoint_url%(self.task.hospitalId,self.task.departmentId);
+        r=self.session.get(appoint_url);
+        return r;
     '''
         医院下的科室的某一天预约信息。
     '''
@@ -30,8 +38,7 @@ class Robot_114:
         dutyCode=self.task.getDutycode();
         dutyDate=self.task.getDutydate();
         r=self.doPartduty( dutyCode, dutyDate);
-        if r.json()['msg']!="ok":
-            raise Exception("登录失败！");
+        
         return r;
     def doPartduty(self,dutyCode,dutyDate):
         login_data={'hospitalId':self.task.hospitalId,'departmentId':self.task.epartmentId,'dutyCode':dutyCode,'dutyDate':dutyDate,'isAjax':'true'};

@@ -8,6 +8,9 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import ForeignKey
 
 Base = declarative_base()
+'''
+    扫描的任务表
+'''
 class Task(Base):
     # 表的名字:
     __tablename__ = 'task'
@@ -20,8 +23,10 @@ class Task(Base):
     doctortype=Column(Integer());#预约的医生 1.专家 2.非专家 3 全部
     adddate=Column(TIMESTAMP, default=func.now());
     user114id = Column(Integer, ForeignKey('user114.id'));
-    user114 = relationship("user114", back_populates="task");
+    #user114 = relationship("user114", back_populates="task");
+    user114 = relationship("User114",lazy='subquery');
     hashcode = Column(Integer());
+    status=Column(Integer());
     '''
         订单成功后的信息如下
     '''
@@ -30,8 +35,8 @@ class Task(Base):
     orderdocotor=Column(String(50));
     identityCode=Column(String(50));#识别码
     
-    __dutydate=None;
-    __dutyCode=None;
+    __dutydate=None;#抢到票的时间
+    __dutyCode=None;#抢到票的
     def setDutydate(self,dutydate):
         self.__dutydate=dutydate;
     def getDutydate(self):
@@ -40,6 +45,9 @@ class Task(Base):
         self.__dutyCode=dutycode;
     def getDutycode(self):
         return self.__dutycode;
+'''
+    114任务的用户
+'''
 class User114(Base):
     # 表的名字:
     __tablename__ = 'user114';
@@ -50,7 +58,21 @@ class User114(Base):
     patientid = Column(String(100)); #就诊人 
     phone=Column(String(100));  #手机号
     adddate=Column(TIMESTAMP, default=func.now());
-    task = relationship("task", back_populates="user114", uselist=False);
+    task = relationship("Task", back_populates="user114", uselist=False);
+'''
+    设置
+'''
+class Settings(Base):
+    # 表的名字:
+    __tablename__ = 'settings';
+    # 表的结构:
+    id=Column(Integer(), primary_key=True);
+    #执行任务的间隔时间 秒为单位
+    interval_Of_Task = Column(Integer());
+    #执行漏票的 间隔单位
+    interval_Of_Realtime = Column(Integer());
+    #执行更新regedit表的时间段
+    disable_update_time=Column(String(100));
     
     
     
