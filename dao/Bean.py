@@ -71,10 +71,17 @@ class Settings(Base):
     interval_Of_Task = Column(Integer());
     #执行漏票的 间隔单位
     interval_Of_Realtime = Column(Integer());
-    #执行更新regedit表的时间段
-    disable_update_time=Column(String(100));
-    
-    
+    #抢票的时间段3600,7200
+    take_ticket_time=Column(String(100));
+class Robot(Base):
+    # 表的名字:
+    __tablename__ = 'robot';
+    # 表的结构:
+    id=Column(String(100), primary_key=True);
+    # 定时刷新
+    update_time = Column(TIMESTAMP, default=func.now());
+    #
+    hashcode = Column(Integer()); 
     
     
     

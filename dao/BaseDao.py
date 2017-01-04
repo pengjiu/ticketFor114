@@ -16,13 +16,13 @@ Base = declarative_base()
 
 
 # 初始化数据库连接:
-engine = create_engine('mysql+pymysql://root:pengjiu009@112.74.98.248:3306/114?charset=utf8mb4')
+engine = create_engine('mysql+pymysql://mysql:pengjiu009@112.74.98.248:3306/114?charset=utf8mb4')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 
-def saveTask(new_app):
+def saveTask(task):
     session = DBSession()    
-    session.add(new_app)
+    session.add(task)
     # 提交即保存到数据库:
     session.commit()
     # 关闭session:
@@ -33,37 +33,48 @@ def updateTaskById(taskId,modified_status):
     session.commit()
     session.close()
     '''
-        以setting 表作为分布式锁
+        查询 setting表
     '''
-def querySettingWithLocking():
+def querySetting():
     session = DBSession()
-    settings=session.query(Bean.Settings).with_lockmode("update").one();
-    #session.commit();
-    res={"settings":settings,"session":session};
-    #session.close()
+    settings=session.query(Bean.Settings).one_or_none();   
+    session.close()
+    return settings;
+
+def queryRobotOfAll():
+    session = DBSession()
+    res=session.query(Bean.Robot).all();
+    session.close()
     return res;
-'''
-    以setting表 释放锁
-'''
-def releaseSettingWithLocking(session):
-    session.commit();
-    #session.close() 
+
+def queryRobotById(robotId):
+    session = DBSession();
+    res=session.query(Bean.Robot).filter(Bean.Robot.id==robotId).one_or_none();
+    session.close();
+    return res;
+
+def updateRobotDatetimeById(robotid):
+    session = DBSession()
+    #Robots=session.query(Bean.Robot).filter(Bean.Robot.id==robotid).update({Bean.Robot.status:modified_status})
+    res=session.execute('update robot set update_time=now() where id=:id',{'id': robotid});
+
+    session.commit();    
+    session.close()
+    return res;
+     
 
 def queryTaskOfAll():
+    
     session = DBSession()
     d=session.query(Bean.Task).filter_by(status=1).all();
     session.commit();
     #session.close()
     return d
 
-    
+
 if __name__ == '__main__':
-    data=querySettingWithLocking()
-    settings=data["settings"];
-    session=data["session"];
-    releaseSettingWithLocking(session);
-    time.sleep(10);
-    print settings.id;
+    print queryRobotById(2);
+     
 
 
 
