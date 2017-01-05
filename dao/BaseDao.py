@@ -73,8 +73,11 @@ def queryTaskOfAll():
 
 
 if __name__ == '__main__':
-    print queryRobotById(2);
-     
-
-
+    tasks=queryTaskOfAll();
+    #print len(tasks);
+    user114s={x.user114 for x in tasks};
+    #print len(user114s);
+    for u in user114s:
+        for x in u.task:
+            print x.id,x.departmentId; 
 

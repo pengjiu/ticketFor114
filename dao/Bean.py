@@ -22,8 +22,8 @@ class Task(Base):
     dutydata = Column(String(2000)); #预约时间 {’2016-1-1’:1,'2017-1-1':2} json 预约日期：1上午 2下午
     doctortype=Column(Integer());#预约的医生 1.专家 2.非专家 3 全部
     adddate=Column(TIMESTAMP, default=func.now());
-    user114id = Column(Integer, ForeignKey('user114.id'));
-    #user114 = relationship("user114", back_populates="task");
+    user114id = Column(Integer, ForeignKey('user114.id'));#绑定的114帐户id
+    userid = Column(Integer);#用户id
     user114 = relationship("User114",lazy='subquery');
     hashcode = Column(Integer());
     status=Column(Integer());
@@ -58,7 +58,8 @@ class User114(Base):
     patientid = Column(String(100)); #就诊人 
     phone=Column(String(100));  #手机号
     adddate=Column(TIMESTAMP, default=func.now());
-    task = relationship("Task", back_populates="user114", uselist=False);
+    userid=Column(Integer());#用户ID
+    task = relationship("Task", back_populates="user114", uselist=True);
 '''
     设置
 '''

@@ -5,18 +5,21 @@ from dao import BaseDao, Bean
 import time
 import datetime
 from macpath import split
-from robot import Robot_114
 
 #提前和延后的时间
 robot_range_time=3*60;
 
+__robotId=None;
 #机器唯一编码
 def getRobotId():
-    return 1;
+    if __robotId==None:
+        __robotId=1;
+    return __robotId;
 '''
     重新设置所有的robot hashcode
 '''
 def makeRobotHashcode():
+    
     pass;
 
 def schedulerUpdatetime():
@@ -52,25 +55,56 @@ def doWorkOfTimer():
         BaseDao.saveTask(robot);
         pass;
     lastestTimeDiff=getLastestTimeByNow(setting.take_ticket_time);
-    interval_time=lastestTimeDiff-robot_range_time;
+    interval_time=lastestTimeDiff-robot_range_time;        
     time.sleep(interval_time);
     doWorkAtRegularTime();
-    
-def doWorkAtRegularTime():
+   
+def getBound():
+    upbound=downbound=-1;
     robots=BaseDao.queryRobotOfAll();
+    robots=sorted(robots,key=robots.hashcode);
+    if len(robots)==0:
+        raise Exception("getBound len(robots)==0 ,robot列表为空 ，"+getRobotId());
+    for robot in robots:
+        if robot.id==getRobotId():
+            upbound=robot.hascode;
+        elif upbound>-1 and robot.hashcode>upbound:
+            downbound=robot.hashcod;
+            break;
+    if upbound==-1:
+        raise Exception("getBound upbound==-1 ,没有找到robot ，"+getRobotId());
+    if downbound==-1:
+        downbound=robots[0];
+    return {"upbound":upbound,"downbound":downbound};
+def doWorkAtRegularTime():
+    bounds=getBound();
+    upbound=bounds["upbound"];
+    downbound=bounds["downbound"];
     tasks=BaseDao.queryTaskOfAll();
-    robot=Robot_114();
-    robot.login();
+    user114s={x.user114 for x in tasks};
+    for user114 in user114s:
+        hashcode=user114.id%10;
+        #当前的user114的id%10要>=当前robot的边界 and <下一个robot的边界
+        if hashcode>=upbound and hashcode<downbound:
+            RobotMaster(user114).execute();
+    
     
 def work():
     while(True):
         doWorkOfTimer();
     
+    
+class RobotMaster:
+    def __init__(self,user114):
+        self.user114=user114;
+    def execute(self):
+        print self.user114.id;
+        
 if __name__ == '__main__':
     #work();
-    setting="70000,30000,65000";
-    now = datetime.datetime.now();
-    now_seconds=now.hour*3600+now.minute*60+now.second; 
-    lastestTime=getLastestTimeByNow(setting,now_seconds);
-    print lastestTime,now_seconds
+    doWorkAtRegularTime();
+    
+    
+    
+    
     
