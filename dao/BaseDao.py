@@ -16,7 +16,7 @@ Base = declarative_base()
 
 
 # 初始化数据库连接:
-engine = create_engine('mysql+pymysql://mysql:pengjiu009@112.74.98.248:3306/114?charset=utf8mb4')
+engine = create_engine('mysql+pymysql://mysql:xxxxxx@xxx.xx.xx.xx:xxx/xxx?charset=utf8mb4')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 
